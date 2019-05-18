@@ -250,8 +250,8 @@ export function plotGraph(compounds, cycleLength) {
         }
 
         // Compound does not exist yet
-        if (typeof(compoundMap[c]) === 'undefined') {
-            compoundMap[c] = {index: index, occurence: 1}
+        if (typeof(compoundMap[compound]) === 'undefined') {
+            compoundMap[compound] = {index: series.length}
             weeklyDoses.push({compound: compoundLabel, dose: (dayDifference / days) * weeklyDose})
             series.push({
                 name: compoundLabel,
@@ -260,8 +260,8 @@ export function plotGraph(compounds, cycleLength) {
         }
         // Compound exists, then add dose
         else {
-            const compoundIndex = compoundMap[c].index
-            compoundMap[c].occurence += 1
+            const compoundIndex = compoundMap[compound].index
+            compoundMap[compound].occurence += 1
             const existingSeries = series[compoundIndex].data
             weeklyDoses[compoundIndex].dose += (dayDifference / days) * weeklyDose
             for (let j = 0; j < existingSeries.length; j++) {

@@ -105,6 +105,7 @@ export function plotGraph(compounds, cycleLength) {
     const days = cycleLength * 7;
     const series = []
     const weeklyDoses = []
+    const compoundMap = {}
     let totalWeeklyDose = 0
 
     compounds.forEach(c => {
@@ -124,26 +125,16 @@ export function plotGraph(compounds, cycleLength) {
         }
     }
 
-    compounds.forEach(c => {
+    compounds.forEach((c, index) => {
         const {dose, compound, compoundForm, schedule, from, to} = c.compoundProps
         let start = parseInt(from) * 7 - 7;
         let dayDifference = (parseInt(to) * 7) - start;
         let half = 1;
         let effect = 1;
-        let compoundLabel = '-'
+        let compoundLabel = compound
         const cycleData = new Array(x_axis.length).fill(0);
         const dosingTime = Math.round(parseFloat(dayDifference) / parseFloat(schedule))
-        let weeklyDose = dosingTime * parseFloat(dose)
-
-        const setCompoundLabel = (data) => {
-            for (let x = 0; x < data.length; x++) {
-                const form = data[x]
-                if (form.value === compoundForm) {
-                    compoundLabel = compound + ' ' + form.label.toLowerCase()
-                    break;
-                }
-            }
-        }
+        let weeklyDose = ((dosingTime * parseFloat(dose)) / dayDifference) * 7
 
         switch (compound) {
             default:
@@ -151,35 +142,27 @@ export function plotGraph(compounds, cycleLength) {
                     ({half, effect} = halfLife[compound])
                 } catch {
                 }
-                compoundLabel = compound
                 break
             case 'testosterone':
                 ({half, effect} = halfLife[compound][compoundForm])
-                setCompoundLabel(compoundList[compound])
                 break
             case 'trenbolone':
                 ({half, effect} = halfLife[compound][compoundForm])
-                setCompoundLabel(compoundList[compound])
                 break
             case 'masteron':
                 ({half, effect} = halfLife[compound][compoundForm])
-                setCompoundLabel(compoundList[compound])
                 break
             case 'nandrolone':
                 ({half, effect} = halfLife[compound][compoundForm])
-                setCompoundLabel(compoundList[compound])
                 break
             case 'primobolan':
                 ({half, effect} = halfLife[compound][compoundForm])
-                setCompoundLabel(compoundList[compound])
                 break
             case 'winstrol':
                 ({half, effect} = halfLife[compound][compoundForm])
-                setCompoundLabel(compoundList[compound])
                 break
             case 'dnp':
                 ({half, effect} = halfLife[compound][compoundForm])
-                setCompoundLabel(compoundList[compound])
                 break
         }
 
@@ -225,10 +208,14 @@ export function plotGraph(compounds, cycleLength) {
                 ;
             }
         }
+
         const modifiedWeeklyDose = (modifier) => {
-            const numDays = dayDifference - modifier
-            const week = numDays / 7
-            return (dose * week) / 7
+            // const numDays = dayDifference - modifier
+            // return ((numDays / dayDifference) * dose)
+
+            const dosingTime = Math.round(parseFloat(dayDifference - modifier)) / 7;
+            let dosePerWeek = ((dosingTime * parseFloat(dose)) / (dayDifference - modifier)) * 7;
+            return dosePerWeek
         }
 
         //( Exp(-(dia  ) * LN( 2 ) / half )* dose * weigh * LN( 2 )/ E$4,2)
@@ -266,12 +253,31 @@ export function plotGraph(compounds, cycleLength) {
                 break;
         }
 
-        weeklyDoses.push({compound: compoundLabel, dose: weeklyDose})
-        totalWeeklyDose += weeklyDose
-        series.push({
-            name: compoundLabel,
-            data: cycleData
-        });
+        // Compound does not exist yet
+        if (typeof(compoundMap[c]) === 'undefined') {
+            compoundMap[c] = {index: index, occurence: 1}
+            weeklyDoses.push({compound: compoundLabel, dose: (dayDifference / days) * weeklyDose})
+            series.push({
+                name: compoundLabel,
+                data: cycleData
+            });
+        }
+        // Compound exists, then add dose
+        else {
+            const compoundIndex = compoundMap[c].index
+            compoundMap[c].occurence += 1
+            const existingSeries = series[compoundIndex].data
+            weeklyDoses[compoundIndex].dose += (dayDifference / days) * weeklyDose
+            for (let j = 0; j < existingSeries.length; j++) {
+                existingSeries[j] += cycleData[j]
+            }
+        }
     })
+    Object.keys(compoundMap).forEach(key => {
+        const compoundObj = compoundMap[key]
+        const weeklyDose = weeklyDoses[compoundObj.index].dose
+        totalWeeklyDose += weeklyDose
+    })
+
     return {series: series, x_axis: x_axis, weeklyDoses: weeklyDoses, totalWeeklyDose: totalWeeklyDose}
 }

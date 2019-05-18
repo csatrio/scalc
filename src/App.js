@@ -62,12 +62,13 @@ class SingleCompound extends React.Component {
                 <div className='col-sm-3 border'>
                     <select className="form-control" defaultValue={drugCompound}
                             onChange={e => {
+                                const {from, to, schedule} = this.state
                                 this.setState({
                                     compound: e.target.value,
                                     compoundForm: compoundList[e.target.value][0].value,
-                                    from: 1,
-                                    to: 1,
-                                    schedule: 0.5
+                                    from: from === undefined ? 1 : from,
+                                    to: to === undefined ? 1 : to,
+                                    schedule: schedule === undefined ? 0.5 : schedule
                                 }, stateCb)
                             }}>
                         <option value="-" style={{display: 'none'}}>Compound</option>

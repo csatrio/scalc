@@ -132,7 +132,8 @@ export function plotGraph(compounds, cycleLength) {
         let effect = 1;
         let compoundLabel = '-'
         const cycleData = new Array(x_axis.length).fill(0);
-        let weeklyDose = (parseFloat(dayDifference) / parseFloat(schedule)) * parseFloat(dose) / (dayDifference / 7)
+        const dosingTime = Math.round(parseFloat(dayDifference) / parseFloat(schedule))
+        let weeklyDose = dosingTime * parseFloat(dose)
 
         const setCompoundLabel = (data) => {
             for (let x = 0; x < data.length; x++) {
@@ -234,7 +235,6 @@ export function plotGraph(compounds, cycleLength) {
         switch (schedule) {
             default:
                 scheduleByNumber()
-                weeklyDose = (parseFloat(dayDifference) / parseFloat(schedule)) * parseFloat(dose) / (dayDifference / 7)
                 break;
             case "mon":
                 scheduleByDay(0)

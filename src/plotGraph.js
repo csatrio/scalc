@@ -166,7 +166,6 @@ export function plotGraph(compounds, cycleLength) {
                 break
         }
 
-
         const scheduleByNumber = () => {
             for (let i = 0; i < (x_axis.length - (start * time)); i++) {
                 let dailyDose = Math.exp(-x_axis[i] * Math.log(2) / half) * dose * effect * Math.log(2) / half;
@@ -210,9 +209,6 @@ export function plotGraph(compounds, cycleLength) {
         }
 
         const modifiedWeeklyDose = (modifier) => {
-            // const numDays = dayDifference - modifier
-            // return ((numDays / dayDifference) * dose)
-
             const dosingTime = Math.round(parseFloat(dayDifference - modifier)) / 7;
             let dosePerWeek = ((dosingTime * parseFloat(dose)) / (dayDifference - modifier)) * 7;
             return dosePerWeek
@@ -273,6 +269,8 @@ export function plotGraph(compounds, cycleLength) {
             }
         }
     })
+
+    // calculate total weekly dose
     Object.keys(compoundMap).forEach(key => {
         const compoundObj = compoundMap[key]
         const weeklyDose = weeklyDoses[compoundObj.index].dose
